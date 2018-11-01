@@ -13,4 +13,4 @@ RUN bundle install
 
 COPY . .
 
-CMD ["ruby","./fake-service.rb"]
+CMD ["ruby","./proxy-server.rb"]
