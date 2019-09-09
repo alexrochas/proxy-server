@@ -1,5 +1,8 @@
 #!/usr/bin/env ruby
 
+# Set proxy in Mac OS
+# networksetup -setautoproxyurl "Wi-Fi" "http://localhost:4567/proxy.pac"
+
 # REST server
 require "sinatra"
 require "sinatra/multi_route"
