@@ -1,5 +1,0 @@
-proxy-server:
-  build: .
-  ports:
-     - 8081:8080
-
