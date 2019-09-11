@@ -5,22 +5,33 @@ require 'webrick'
 require 'webrick/httpproxy'
 require 'net/http'
 
-token = `ztoken`
+@@token = `ztoken`
 
 Thread.new do
   loop do
     sleep(5 * 60)
     puts('Updating token!')
-    token = `ztoken`
+    @@token = `ztoken`
   end
 end
 
-handler = proc do |req, res|
-  puts('Enhancing request!')
-	req.header['Authorization'] = token
+class ZProxy < WEBrick::HTTPProxyServer
+  def do_GET(req, res)
+    puts('Enhancing request!')
+    req.header['Authorization'] = ["Bearer #{@@token}"]
+    req.raw_header << "Authorization: Bearer #{@@token}"
+    perform_proxy_request(req, res, Net::HTTP::Get)
+  end
+
+  def do_CONNECT(req, res)
+    puts('Enhancing HTTPS request!')
+    req.raw_header << "Authorization: Bearer #{@@token}"
+    req.header['Authorization'] = ["Bearer #{@@token}"]
+    super(req, res)
+  end
 end
 
-proxy = WEBrick::HTTPProxyServer.new Port: 3000, ProxyContentHandler: handler
+proxy = ZProxy.new Port: 3000
 
 trap 'INT'  do proxy.shutdown end
 trap 'TERM' do proxy.shutdown end
